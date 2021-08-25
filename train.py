@@ -23,8 +23,12 @@ def accumulate(model1, model2, decay=0.999):
 
 
 def imagefolder_loader(path):
+    def npy_loader(path):
+        # s=np.load(path).astype('float',copy=False)
+        return torch.from_numpy(np.load(path)).unsqueeze(0).float()
+
     def loader(transform):
-        data = datasets.ImageFolder(path, transform=transform)
+        data = datasets.DatasetFolder(path, npy_loader, ('.npy'), transform=transform)
         data_loader = DataLoader(data, shuffle=True, batch_size=batch_size,
                                  num_workers=4)
         return data_loader
@@ -32,12 +36,13 @@ def imagefolder_loader(path):
 
 
 def sample_data(dataloader, image_size=4):
+
+    GLOBAL = np.load('/content/GLOBAL_VALS_F.npz')
     transform = transforms.Compose([
+        transforms.Normalize((GLOBAL['VALS'][0]), (GLOBAL['VALS'][1])),
         transforms.Resize(image_size+int(image_size*0.2)+1),
         transforms.RandomCrop(image_size),
         transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
 
     loader = dataloader(transform)
