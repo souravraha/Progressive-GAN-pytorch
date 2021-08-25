@@ -137,12 +137,12 @@ class Generator(nn.Module):
         self.progression_128 = ConvBlock(in_channel//2, in_channel//4, 3, 1, pixel_norm=pixel_norm)
         self.progression_256 = ConvBlock(in_channel//4, in_channel//4, 3, 1, pixel_norm=pixel_norm)
 
-        self.to_rgb_8 = EqualConv2d(in_channel, 3, 1)
-        self.to_rgb_16 = EqualConv2d(in_channel, 3, 1)
-        self.to_rgb_32 = EqualConv2d(in_channel, 3, 1)
-        self.to_rgb_64 = EqualConv2d(in_channel//2, 3, 1)
-        self.to_rgb_128 = EqualConv2d(in_channel//4, 3, 1)
-        self.to_rgb_256 = EqualConv2d(in_channel//4, 3, 1)
+        self.to_rgb_8 = EqualConv2d(in_channel, 1, 1)
+        self.to_rgb_16 = EqualConv2d(in_channel, 1, 1)
+        self.to_rgb_32 = EqualConv2d(in_channel, 1, 1)
+        self.to_rgb_64 = EqualConv2d(in_channel//2, 1, 1)
+        self.to_rgb_128 = EqualConv2d(in_channel//4, 1, 1)
+        self.to_rgb_256 = EqualConv2d(in_channel//4, 1, 1)
         
         self.max_step = 6
 
@@ -206,13 +206,13 @@ class Discriminator(nn.Module):
                                           ConvBlock(feat_dim, feat_dim, 3, 1),
                                           ConvBlock(feat_dim+1, feat_dim, 3, 1, 4, 0)])
 
-        self.from_rgb = nn.ModuleList([EqualConv2d(3, feat_dim//4, 1),
-                                       EqualConv2d(3, feat_dim//4, 1),
-                                       EqualConv2d(3, feat_dim//2, 1),
-                                       EqualConv2d(3, feat_dim, 1),
-                                       EqualConv2d(3, feat_dim, 1),
-                                       EqualConv2d(3, feat_dim, 1),
-                                       EqualConv2d(3, feat_dim, 1)])
+        self.from_rgb = nn.ModuleList([EqualConv2d(1, feat_dim//4, 1),
+                                       EqualConv2d(1, feat_dim//4, 1),
+                                       EqualConv2d(1, feat_dim//2, 1),
+                                       EqualConv2d(1, feat_dim, 1),
+                                       EqualConv2d(1, feat_dim, 1),
+                                       EqualConv2d(1, feat_dim, 1),
+                                       EqualConv2d(1, feat_dim, 1)])
 
         self.n_layer = len(self.progression)
 
