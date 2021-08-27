@@ -71,7 +71,7 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
     post_fix = '%s_%s_%d_%d.txt'%(trial_name, date_time.date(), date_time.hour, date_time.minute)
     log_folder = '%s_train_%s_%d_%d'%(trial_name, date_time.date(), date_time.hour, date_time.minute)
     
-    os.mkdir(log_folder)
+    os.mkdir(os.path.join(log_folder))
     os.mkdir(log_folder+'/checkpoint')
     os.mkdir(log_folder+'/sample')
 
