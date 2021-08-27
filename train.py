@@ -51,7 +51,7 @@ def sample_data(dataloader, image_size=4):
     return loader
 
 
-def training(generator, discriminator, init_step, loader, total_iter=600000):
+def train(generator, discriminator, init_step, loader, total_iter=600000):
     step = init_step # can be 1 = 8, 2 = 16, 3 = 32, 4 = 64, 5 = 128, 6 = 256
     data_loader = sample_data(loader, 4 * 2 ** step)
     dataset = iter(data_loader)
@@ -69,7 +69,7 @@ def training(generator, discriminator, init_step, loader, total_iter=600000):
     import os
     date_time = datetime.now()
     post_fix = '%s_%s_%d_%d.txt'%(trial_name, date_time.date(), date_time.hour, date_time.minute)
-    log_folder = 'trial_%s_%s_%d_%d'%(trial_name, date_time.date(), date_time.hour, date_time.minute)
+    log_folder = '../drive/MyDrive/Logs/F/PGAN/trial_%s_%s_%d_%d'%(trial_name, date_time.date(), date_time.hour, date_time.minute)
     
     os.mkdir(log_folder)
     os.mkdir(log_folder+'/checkpoint')
