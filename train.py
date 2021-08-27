@@ -1,5 +1,7 @@
+from datetime import datetime
+import os
 
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import numpy as np
 from PIL import Image
 import argparse
@@ -65,15 +67,13 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
     gen_loss_val = 0
     grad_loss_val = 0
 
-    from datetime import datetime
-    import os
     date_time = datetime.now()
     post_fix = '%s_%s_%d_%d.txt'%(trial_name, date_time.date(), date_time.hour, date_time.minute)
-    log_folder = '%s_train_%s_%d_%d'%(trial_name, date_time.date(), date_time.hour, date_time.minute)
+    log_folder = out_path + 'trial_%s_%s_%d_%d'%(trial_name, date_time.date(), date_time.hour, date_time.minute)
     
-    os.makedirs(os.path.join(log_folder))
-    os.makedirs(log_folder+'/checkpoint')
-    os.makedirs(log_folder+'/sample')
+    os.makedirs(log_folder)
+    os.mkdir(log_folder+'/checkpoint')
+    os.mkdir(log_folder+'/sample')
 
     config_file_name = os.path.join(log_folder, 'train_config_'+post_fix)
     config_file = open(config_file_name, 'w')
@@ -201,7 +201,7 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
             grad_loss_val = 0
 
             print(state_msg)
-            #pbar.set_description(state_msg)
+            # pbar.set_description(state_msg)
 
 
 if __name__ == '__main__':
@@ -209,6 +209,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Progressive GAN, during training, the model will learn to generate  images from a low resolution, then progressively getting high resolution ')
 
     parser.add_argument('--path', type=str, help='path of specified dataset, should be a folder that has one or many sub image folders inside')
+    parser.add_argument('--out_path', type=str, default=os.getcwd(), help='the output path')
     parser.add_argument('--trial_name', type=str, default="test1", help='a brief description of the training trial')
     parser.add_argument('--gpu_id', type=int, default=0, help='0 is the first gpu, 1 is the second gpu, etc.')
     parser.add_argument('--lr', type=float, default=0.001, help='learning rate, default is 1e-3, usually dont need to change it, you can try make it bigger, such as 2e-3')
@@ -225,6 +226,7 @@ if __name__ == '__main__':
 
     print(str(args))
 
+    out_path = args.out_path
     trial_name = args.trial_name
     device = torch.device("cuda:%d"%(args.gpu_id))
     input_code_size = args.z_dim
@@ -236,9 +238,9 @@ if __name__ == '__main__':
     g_running = Generator(in_channel=args.channel, input_code_dim=input_code_size, pixel_norm=args.pixel_norm, tanh=args.tanh).to(device)
     
     ## you can directly load a pretrained model here
-    #generator.load_state_dict(torch.load('.checkpoint/150000_g.model'))
-    #g_running.load_state_dict(torch.load('checkpoint/150000_g.model'))
-    #discriminator.load_state_dict(torch.load('checkpoint/150000_d.model'))
+    generator.load_state_dict(torch.load('/content/drive/MyDrive/Logs/F/PGAN/trial_pgan_2021-08-27_17_4/checkpoint/010000_g.model'))
+    g_running.load_state_dict(torch.load('/content/drive/MyDrive/Logs/F/PGAN/trial_pgan_2021-08-27_17_4/checkpoint/010000_g.model'))
+    discriminator.load_state_dict(torch.load('/content/drive/MyDrive/Logs/F/PGAN/trial_pgan_2021-08-27_17_4/checkpoint/010000_d.model'))
     
     g_running.train(False)
 
