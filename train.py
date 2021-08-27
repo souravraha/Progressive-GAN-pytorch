@@ -1,3 +1,4 @@
+
 from tqdm import tqdm
 import numpy as np
 from PIL import Image
@@ -36,12 +37,12 @@ def imagefolder_loader(path):
 
 
 def sample_data(dataloader, image_size=4):
-
-    GLOBAL = np.load('/content/GLOBAL_VALS_F.npz')
+    GLOBAL = np.load('GLOBAL_VALS_F.npz')
     transform = transforms.Compose([
-        transforms.Normalize((GLOBAL['VALS'][0]), (GLOBAL['VALS'][1])),
-        transforms.Resize(image_size+int(image_size*0.2)+1),
-        transforms.RandomCrop(image_size),
+        transforms.Normalize((GLOBAL['VALS'][2]), (GLOBAL['VALS'][3])),
+        transforms.Normalize((0.5,), (0.5,)),
+        transforms.Resize(image_size),
+        transforms.RandomVerticalFlip(),
         transforms.RandomHorizontalFlip(),
     ])
 
@@ -50,8 +51,8 @@ def sample_data(dataloader, image_size=4):
     return loader
 
 
-def train(generator, discriminator, init_step, loader, total_iter=600000):
-    step = init_step # can be 1 = 8, 2 = 16, 3 = 32, 4 = 64, 5 = 128, 6 = 128
+def training(generator, discriminator, init_step, loader, total_iter=600000):
+    step = init_step # can be 1 = 8, 2 = 16, 3 = 32, 4 = 64, 5 = 128, 6 = 256
     data_loader = sample_data(loader, 4 * 2 ** step)
     dataset = iter(data_loader)
 
@@ -171,12 +172,11 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
 
         if (i + 1) % 1000 == 0 or i==0:
             with torch.no_grad():
-                images = g_running(torch.randn(5 * 10, input_code_size).to(device), step=step, alpha=alpha).data.cpu()
-
+                images = g_running(torch.randn(3*3, input_code_size).to(device), step=step, alpha=alpha).data.cpu()
                 utils.save_image(
-                    images,
-                    f'{log_folder}/sample/{str(i + 1).zfill(6)}.png',
-                    nrow=10,
+                    F.interpolate(images, 150),
+                    f'{log_folder}/sample/{str(i + 1).zfill(6)}.pdf',
+                    nrow=3,
                     normalize=True,
                     range=(-1, 1))
  
@@ -236,7 +236,7 @@ if __name__ == '__main__':
     g_running = Generator(in_channel=args.channel, input_code_dim=input_code_size, pixel_norm=args.pixel_norm, tanh=args.tanh).to(device)
     
     ## you can directly load a pretrained model here
-    #generator.load_state_dict(torch.load('./tr checkpoint/150000_g.model'))
+    #generator.load_state_dict(torch.load('.checkpoint/150000_g.model'))
     #g_running.load_state_dict(torch.load('checkpoint/150000_g.model'))
     #discriminator.load_state_dict(torch.load('checkpoint/150000_d.model'))
     
