@@ -39,9 +39,9 @@ def imagefolder_loader(path):
 
 
 def sample_data(dataloader, image_size=4):
-    GLOBAL = np.load('GLOBAL_VALS_F.npz')
     transform = transforms.Compose([
-        transforms.Normalize((GLOBAL['VALS'][2]), (GLOBAL['VALS'][3])),
+        transforms.Normalize((5,), (961,)),    #   F
+#         transforms.Normalize((0,), (1007,)),    #   J
         transforms.Normalize((0.5,), (0.5,)),
         transforms.Resize(image_size),
         transforms.RandomVerticalFlip(),
@@ -53,15 +53,17 @@ def sample_data(dataloader, image_size=4):
     return loader
 
 
-def train(generator, discriminator, init_step, loader, total_iter=600000):
+def train(generator, discriminator, init_step, loader, total_iter=300000):
     step = init_step # can be 1 = 8, 2 = 16, 3 = 32, 4 = 64, 5 = 128, 6 = 256
+    # when resuming traning, this = 1 + CHECKPOINT_NAME // (total_iter//6)
     data_loader = sample_data(loader, 4 * 2 ** step)
     dataset = iter(data_loader)
 
-    #total_iter = 600000
-    total_iter_remain = total_iter - (total_iter//6)*(step-1)
+    iteration = 0   #   If resuming training, this = CHECKPOINT_NAME % (total_iter//6)
 
-    pbar = tqdm(range(total_iter_remain))
+    #total_iter = 300000
+
+    pbar = tqdm(range((total_iter//6)*(step-1) + iteration, total_iter))
 
     disc_loss_val = 0
     gen_loss_val = 0
@@ -89,11 +91,11 @@ def train(generator, discriminator, init_step, loader, total_iter=600000):
     copy('train.py', log_folder+'/train_%s.py'%post_fix)
     copy('progan_modules.py', log_folder+'/model_%s.py'%post_fix)
 
-    alpha = 0
+    # alpha = 0
     #one = torch.FloatTensor([1]).to(device)
     one = torch.tensor(1, dtype=torch.float).to(device)
     mone = one * -1
-    iteration = 0
+    # iteration = 0
 
     for i in pbar:
         discriminator.zero_grad()
@@ -238,9 +240,9 @@ if __name__ == '__main__':
     g_running = Generator(in_channel=args.channel, input_code_dim=input_code_size, pixel_norm=args.pixel_norm, tanh=args.tanh).to(device)
     
     ## you can directly load a pretrained model here
-    generator.load_state_dict(torch.load('/content/drive/MyDrive/Logs/F/PGAN/trial_pgan_2021-08-27_17_4/checkpoint/010000_g.model'))
-    g_running.load_state_dict(torch.load('/content/drive/MyDrive/Logs/F/PGAN/trial_pgan_2021-08-27_17_4/checkpoint/010000_g.model'))
-    discriminator.load_state_dict(torch.load('/content/drive/MyDrive/Logs/F/PGAN/trial_pgan_2021-08-27_17_4/checkpoint/010000_d.model'))
+    generator.load_state_dict(torch.load('checkpoint/020000_g.model'))
+    g_running.load_state_dict(torch.load('checkpoint/020000_g.model'))
+    discriminator.load_state_dict(torch.load('/checkpoint/020000_d.model'))
     
     g_running.train(False)
 
